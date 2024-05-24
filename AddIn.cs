@@ -9,11 +9,17 @@ namespace OneNoteVanilla5
 	using Microsoft.Office.Interop.OneNote;
 	using System;
 	using System.Runtime.InteropServices;
-	using System.Windows.Forms;
-	using System.Xml.Linq;
+    using System.Threading;
+    using System.Windows;
+    using System.Windows.Forms;
+    using System.Windows.Threading;
+    using System.Xml.Linq;
+    using OneNoteVanilla5.WPF;
+    using MessageBox = System.Windows.Forms.MessageBox;
+    using MessageBoxOptions = System.Windows.Forms.MessageBoxOptions;
 
-
-	[ComVisible(true)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Application is for Windows 10 and upwards only")]
+    [ComVisible(true)]
 	[Guid("4D86B2FD-0C2D-4610-8916-DE24C4BB70B5")] // change this!
 	[ProgId("OneNoteVanilla5")] // change this!
 	public class AddIn : IDTExtensibility2, IRibbonExtensibility
@@ -47,7 +53,8 @@ namespace OneNoteVanilla5
 			// intialize your stuff here
 		}
 
-		public void OnBeginShutdown(ref Array custom)
+
+        public void OnBeginShutdown(ref Array custom)
 		{
 			// required to shut down OneNote
 			// both of these lines are necessary along with the two lines in OnDisconnection
@@ -66,7 +73,7 @@ namespace OneNoteVanilla5
     <tabs>
       <tab idMso=""TabHome"">
         <group id=""vanillaAddInGroup"" label=""Vanilla Add-in"">
-          <button id=""helloButton"" imageMso=""HappyFace"" size=""large"" label=""Say Hello!"" onAction=""SayHello""/>
+          <button id=""helloButton"" imageMso=""HappyFace"" size=""large"" label=""Say Hello!"" onAction=""ShowWindow""/>
         </group>
       </tab>
     </tabs>
@@ -92,10 +99,33 @@ namespace OneNoteVanilla5
 
 			MessageBox.Show(
 				$"Hello from {name}!",
-				"Vanilla OneNote on .NET 5",
+				"Vanilla OneNote on .NET 8",
 				MessageBoxButtons.OK, MessageBoxIcon.None,
 				MessageBoxDefaultButton.Button1,
 				MessageBoxOptions.DefaultDesktopOnly);
+		}
+
+		public void ShowWindow(IRibbonControl control)
+		{
+			// Start a STA thread to show the WPF window as COM thread is MTA which cannot access UI components since the components are not thread-safe 
+			Thread thread = new Thread(() =>
+			{
+				try
+				{
+                    var window = new MainWindow(onenote);
+                    window.ShowDialog();
+                } catch (Exception e)
+				{
+                    MessageBox.Show(
+					$"An exception occured: {e.Message}",
+                    "Exception",
+                    MessageBoxButtons.OK);
+                }
+			});
+			thread.SetApartmentState(ApartmentState.STA);
+			thread.Start();
+			// Block the thread until dialog is closed to prevent users from editing OneNote until the dialog is closed
+			thread.Join();
 		}
 	}
 }

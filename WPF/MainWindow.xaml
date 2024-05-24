@@ -1,0 +1,38 @@
+﻿<mah:MetroWindow x:Class="OneNoteVanilla5.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:localv="clr-namespace:OneNoteVanilla5.WPF.View"
+        xmlns:localvm="clr-namespace:OneNoteVanilla5.WPF.ViewModel"
+        mc:Ignorable="d"
+        Title="DealCloud" 
+        Height="1000" 
+        Width="1400"
+        Loaded="MainWindow_Loaded"
+        Deactivated="Window_Deactivated"
+        Icon="pack://application:,,,/OneNoteVanilla5;component/Resources/images.png"
+        Topmost="True"
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterOwner"
+        >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type localvm:View1ViewModel}">
+                <localv:View1 />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type localvm:View2ViewModel}">
+                <localv:View2 />
+            </DataTemplate>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <ContentControl Content="{Binding CurrentViewModel}" />
+    </Grid>
+</mah:MetroWindow>
